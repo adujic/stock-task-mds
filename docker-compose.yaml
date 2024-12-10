@@ -1,0 +1,37 @@
+version: "3.8"
+services:
+  database:
+    image: postgres:latest
+    container_name: postgres-container-mds
+    environment:
+      POSTGRES_USER: mds_user
+      POSTGRES_PASSWORD: mds_pass
+      POSTGRES_DB: mds_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mds-app-container
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/mds_database
+      SPRING_DATASOURCE_USERNAME: mds_user
+      SPRING_DATASOURCE_PASSWORD: mds_pass
+    depends_on:
+      - database
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+
+networks:
+  app-network:
