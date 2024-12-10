@@ -10,12 +10,12 @@ Follow the steps below to set up and run the application.
 mvn clean package -DskipTests
 ```
 
-### 1. Start docker
+### 2. Start docker
 ```bash
 docker-compose up --build
 ```
 
-### 2. Execute POST service from postman
+### 3. Execute POST service from postman
 Endpoint
 ```bash
 localhost:8080/api/v1/profit/check
