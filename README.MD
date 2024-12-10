@@ -7,6 +7,11 @@ Follow the steps below to set up and run the application.
 
 ### 1. Build application
 ```bash
+mvn clean package -DskipTests
+```
+
+### 1. Start docker
+```bash
 docker-compose up --build
 ```
 

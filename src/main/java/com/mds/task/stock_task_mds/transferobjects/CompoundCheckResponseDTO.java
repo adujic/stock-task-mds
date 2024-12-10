@@ -1,11 +1,12 @@
 package com.mds.task.stock_task_mds.transferobjects;
 
+import java.math.BigDecimal;
+
 public class CompoundCheckResponseDTO {
     private CheckResponseDTO providedDates;
     private CheckResponseDTO beforeProvidedDates;
     private CheckResponseDTO afterProvidedDates;
-
-    
+    private BigDecimal periodTradingMaxProfit;
 
     public CompoundCheckResponseDTO() {
     }
@@ -40,4 +41,14 @@ public class CompoundCheckResponseDTO {
     public void setAfterProvidedDates(final CheckResponseDTO afterProvidedDates) {
         this.afterProvidedDates = afterProvidedDates;
     }
+
+    public BigDecimal getPeriodTradingMaxProfit() {
+        return periodTradingMaxProfit;
+    }
+
+    public void setPeriodTradingMaxProfit(BigDecimal periodTradingMaxProfit) {
+        this.periodTradingMaxProfit = periodTradingMaxProfit;
+    }
+    
+    
 }

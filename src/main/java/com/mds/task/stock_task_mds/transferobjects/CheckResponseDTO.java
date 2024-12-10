@@ -1,8 +1,11 @@
 package com.mds.task.stock_task_mds.transferobjects;
 
+import java.math.BigDecimal;
+
 public class CheckResponseDTO {
     private CheckResponseItemDTO shouldBuy;
     private CheckResponseItemDTO shouldSell;
+    private BigDecimal profit;
     
     public CheckResponseItemDTO getShouldBuy() {
         return shouldBuy;
@@ -20,6 +23,11 @@ public class CheckResponseDTO {
         this.shouldSell = shouldSell;
     }
 
-    
+    public BigDecimal getProfit() {
+        return profit;
+    }
 
+    public void setProfit(BigDecimal profit) {
+        this.profit = profit;
+    }
 }

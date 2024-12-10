@@ -41,6 +41,7 @@ public class ProfitService {
      * @throws DateValidationException if the start date is not before the end date.
      */
     public CompoundCheckResponseDTO checkProfit(final CheckRequestDTO checkRequestDTO) {
+        final CompoundCheckResponseDTO checkResponseDTO;
         final LocalDate dateFrom;
         final LocalDate dateTo;
         final Company company;
@@ -69,7 +70,10 @@ public class ProfitService {
         CheckResponseDTO previousPeriod = this.checkProfitForDates(company, dateFrom.minusDays(days), dateTo.minusDays(days)); 
         CheckResponseDTO laterPeriod = this.checkProfitForDates(company, dateFrom.plusDays(days), dateTo.plusDays(days));
 
-        return new CompoundCheckResponseDTO(currentPeriod, previousPeriod, laterPeriod);        
+        checkResponseDTO = new CompoundCheckResponseDTO(currentPeriod, previousPeriod, laterPeriod); 
+        checkResponseDTO.setPeriodTradingMaxProfit(this.checkSumTradingProfitForDates(company, dateFrom, dateTo));
+
+        return checkResponseDTO;
     }
 
     /**
@@ -81,9 +85,23 @@ public class ProfitService {
      * @return
      */
     private CheckResponseDTO checkProfitForDates(final Company company, final LocalDate dateFrom, final LocalDate dateTo) {
-        List<StockPrice> period = this.stockPriceService.getPeriodStockPriceByCompany(company, dateFrom, dateTo);
+        final List<StockPrice> period = this.stockPriceService.getPeriodStockPriceByCompany(company, dateFrom, dateTo);
 
         return calculate(period);
+    }
+
+    /**
+     * Load stock period for database for provided company and time range in order to calculate max profit if traded.
+     * 
+     * @param company
+     * @param dateFrom
+     * @param dateTo
+     * @return
+     */
+    private BigDecimal checkSumTradingProfitForDates(final Company company, final LocalDate dateFrom, final LocalDate dateTo) {
+        final List<StockPrice> period = this.stockPriceService.getPeriodStockPriceByCompany(company, dateFrom, dateTo);
+
+        return this.calculateTradingSumProfit(period);
     }
 
     /**
@@ -115,7 +133,42 @@ public class ProfitService {
 
         result.setShouldBuy(new CheckResponseItemDTO(buyPrice.getDate(), buyPrice.getClose()));
         result.setShouldSell(new CheckResponseItemDTO(selPrice.getDate(), selPrice.getClose()));
+        result.setProfit(maxProfit);
 
         return result;
+    }
+
+    /**
+     * Calculates the total trading profit for a given list of stock prices.
+     *
+     * @param stockPrices the list of {@link StockPrice} objects to calculate the profit from.
+     * @return the total trading profit as a {@link BigDecimal}.
+     */
+    private BigDecimal calculateTradingSumProfit(final List<StockPrice> stockPrices) {
+        BigDecimal maxProfit = BigDecimal.ZERO;
+        int n = stockPrices.size();
+        int i = 0;
+    
+        while (i < n) {
+            BigDecimal buyPrice = stockPrices.get(i).getLow();
+            boolean profitFound = false;
+    
+            
+            for (int j = i + 1; j < n; j++) {
+                BigDecimal sellPrice = stockPrices.get(j).getHigh();
+                if (sellPrice.compareTo(buyPrice) > 0) {
+                    BigDecimal profit = sellPrice.subtract(buyPrice);
+                    maxProfit = maxProfit.add(profit);
+                    i = j;
+                    profitFound = true;
+                    break;
+                }
+            }
+            if (!profitFound) {
+                i++;
+            }
+        }
+    
+        return maxProfit;
     }
 }
